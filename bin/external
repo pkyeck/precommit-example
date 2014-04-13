@@ -15,7 +15,13 @@ else
     TOUCH="touch"
 fi
 
-BUILD=`${MKTEMP} -d -t tmp`
+if [[ "$OSTYPE" == "darwin"* ]];
+then
+    BUILD=`${MKTEMP} -d -t tmp`
+else
+    BUILD=`${MKTEMP} -d`
+fi
+
 trap 'rm -rf $BUILD' EXIT
 
 if git diff-index --quiet --cached HEAD
@@ -53,7 +59,11 @@ for FILE in "${TOUCH_FILES[@]}"
 do
     if [[ -f $BUILD/$FILE ]]
     then
-        $TOUCH $BUILD/$FILE
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            $TOUCH $BUILD/$FILE
+        else
+            $TOUCH -d @0 $BUILD/$FILE
+        fi
     fi
 done
 
